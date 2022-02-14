@@ -1,5 +1,6 @@
 package com.codepwn.nsp
 
+import com.codepwn.nsp.PluginMain.save
 import io.ktor.client.*
 import io.ktor.client.request.*
 import org.json.JSONObject
@@ -10,6 +11,24 @@ import java.util.*
 
 
 object Utils {
+
+    fun checkTimeout(GroupId: Long):String {
+        return try {
+            val cacheSearch = PluginData.GroupSearchTimeout[GroupId]
+            if (System.currentTimeMillis().div(1000) > cacheSearch!!) {
+                PluginData.GroupSearchTimeout[GroupId] = System.currentTimeMillis() / 1000 + PluginConfig.searchTimeoutSec
+                PluginData.save()
+                PluginData.GroupSearchTimeout[GroupId].toString() + "_" + "yes"
+            } else {
+                PluginData.GroupSearchTimeout[GroupId]?.minus(System.currentTimeMillis() / 1000).toString() + "_" + "no"
+            }
+        } catch (e:NullPointerException) {
+            PluginData.GroupSearchTimeout[GroupId] = System.currentTimeMillis() / 1000 + PluginConfig.searchTimeoutSec
+            PluginData.save()
+            PluginData.GroupSearchTimeout[GroupId].toString() + "_" + "yes"
+        }
+    }
+
     suspend fun searchInNetease(Input: String): String {
         return try {
             if (Input.split(" ")[1] !in PluginConfig.bannedNickname) {
@@ -46,7 +65,7 @@ object Utils {
             if (obj.getInt("code") == 0) {
                 return postData
             } else {
-                finalReturnString = if(obj.getString("message") =="参数错误") "[NSP] 请求异常：参数错误（可能是携带敏感词）" else "[NSP] 请求异常：" + obj.getString("message")
+                finalReturnString = if(obj.getString("message").equals("参数错误")) "[NSP] 请求异常：参数错误（可能是携带敏感词）" else "[NSP] 请求异常：" + obj.getString("message")
             }
             //return postData
         } catch (e: Exception) {

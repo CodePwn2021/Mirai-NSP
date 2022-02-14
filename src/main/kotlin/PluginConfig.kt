@@ -17,14 +17,14 @@ object PluginConfig : AutoSavePluginConfig("NSP_Config") {
         群组白名单（Long）
         在白名单的群才可以使用插件命令
         """)
-    var enableList: MutableList<Long> by value(mutableListOf(123456L))
+    val enableList: MutableList<Long> by value(mutableListOf(123456L))
 
     @ValueDescription("""
         禁止查询的呢称名单（String）
         在名单内的玩家不可被查询
         如果某玩家头像是敏感图片，用这个禁止名单会很有效果
         """)
-    var bannedNickname: MutableList<String> by value(mutableListOf("我是一个不可被查询的呢称"))
+    val bannedNickname: MutableList<String> by value(mutableListOf("我是一个不可被查询的呢称"))
 
     @ValueDescription("""
         查询延时 单位秒（Int）
@@ -37,7 +37,7 @@ object PluginConfig : AutoSavePluginConfig("NSP_Config") {
         变量是 %NSP_sec%
         合理放置变量可清晰明了地提示用户
         """)
-    var searchTooFastTips by value("你太快了，请在%NSP_sec%秒后查询")
+    var searchTooFastTips by value("查询过快，请在%NSP_sec%秒后查询")
 
     @ValueDescription("""
         回复小尾巴（String）

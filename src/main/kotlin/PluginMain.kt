@@ -13,7 +13,7 @@ import org.json.JSONObject
 object PluginMain : KotlinPlugin(JvmPluginDescription(
     id = "com.codepwn.nsp",
     name = "NeteaseSearchPlayer",
-    version = "1.0",
+    version = "1.1",
 ) {
     author("CodePwn")
     info("""这个插件可以按呢称查询我的世界中国版的玩家信息""")
@@ -22,6 +22,9 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
         // 初始化信息
         val pluginTag = "[NSP] "
         PluginConfig.reload()
+        PluginData.reload()
+        PluginData.GroupSearchTimeout.plus(114514L to 1919810L)
+        PluginData.save()
         logger.info { pluginTag + "欢迎使用本插件！" }
         if (PluginConfig.masterQQ == 0L) {
             logger.error { pluginTag + "未设置主人QQ，请关闭MiraiConsole后打开配置目录的NSP_Config.yml，修改群组白名单的群号，随后重启MiraiConsole。" }
@@ -42,11 +45,18 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
             if (message.contentToString().startsWith(".nsp ")) {
                 when (message.contentToString().replace(".nsp ", "").split(" ")[0]) {
                     "name" -> {
-                        if (Utils.searchInNetease(message.contentToString().replace(".nsp name ", ""))
-                                .startsWith("{")
+
+                        val timeout = Utils.checkTimeout(group.id)
+                        if(sender.id != PluginConfig.masterQQ && timeout.split("_")[1] != "yes") {
+                            group.sendMessage("[NSP] "+PluginConfig.searchTooFastTips.replace("%NSP_sec%",timeout.split("_")[0]))
+                            return@subscribeAlways
+                        }
+
+                        val searchResult = Utils.searchInNetease(message.contentToString().replace(".nsp name ", ""))
+                        if (
+                            searchResult.startsWith("{")
                         ) {
-                            val obj =
-                                JSONObject(Utils.searchInNetease(message.contentToString().replace(".nsp name ", "")))
+                            val obj = JSONObject(searchResult)
                             val entitys = obj.getJSONObject("entity")
                             val playerName = entitys.getString("name")
                             val playerUid = entitys.getString("entity_id")
@@ -58,10 +68,9 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
 
                             group.sendMessage(group.uploadImage(Utils.urlRes2InputStream(playerAvatar)) + PlainText("玩家 $playerName 的信息：\n玩家UID：$playerUid\n玩家注册时间：\n" + Utils.ts2d(
                                 playerRegister) + "\n玩家上一次登录时间：\n" + Utils.ts2d(playerLogin) + "\n玩家上一次登出时间：\n" + Utils.ts2d(
-                                playerLogout) + "\n玩家头像链接：\n" + playerAvatar.toString() + "\n玩家签名内容：\n" + playerSignature.toString() + "\n" + PluginConfig.searchTips))
+                                playerLogout) + "\n玩家头像链接：\n" + playerAvatar.toString() + "\n玩家签名内容：\n" + playerSignature.toString() + "\n\n" + PluginConfig.searchTips))
                         } else {
-                            group.sendMessage(Utils.searchInNetease(message.contentToString()
-                                .replace(".nsp name ", "")))
+                            group.sendMessage(searchResult)
                         }
                     }
 
@@ -91,7 +100,7 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
 
                                 "searchTooFastTips" -> {
                                     val value = message.contentToString().replace(".nsp set searchTooFastTips", "")
-                                    PluginConfig.searchTooFastTips
+                                    PluginConfig.searchTooFastTips = value
                                     group.sendMessage("[NSP] 查询过快提示设置为 $value 成功")
                                     PluginConfig.save()
                                 }
