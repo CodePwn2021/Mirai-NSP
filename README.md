@@ -11,3 +11,5 @@
 .nsp add/remove [configName] [value]
 .nsp set [configName] [value]
 ```
+## 效果
+[![演示效果](https://s4.ax1x.com/2022/02/14/Hsjpff.jpg)](https://imgtu.com/i/Hsjpff)
