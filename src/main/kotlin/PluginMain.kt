@@ -13,7 +13,7 @@ import org.json.JSONObject
 object PluginMain : KotlinPlugin(JvmPluginDescription(
     id = "com.codepwn.nsp",
     name = "NeteaseSearchPlayer",
-    version = "1.1",
+    version = "1.1.1",
 ) {
     author("CodePwn")
     info("""这个插件可以按呢称查询我的世界中国版的玩家信息""")
@@ -85,7 +85,7 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
 
                     "set" -> {
                         if (sender.id != PluginConfig.masterQQ) {
-                            group.sendMessage("[NSP] 你不是我的主人，无权修改！")
+                            group.sendMessage("[NSP] 只有主人才能修改配置！")
                             return@subscribeAlways
                         }
 
@@ -94,23 +94,25 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
                                 "searchTimeoutSec" -> {
                                     val value = message.contentToString().replace(".nsp set ", "").split(" ")[1].toInt()
                                     PluginConfig.searchTimeoutSec = value
-                                    group.sendMessage("[NSP] 查询延时设置为 $value 成功")
+                                    group.sendMessage("[NSP] 查询延时已设置为 $value")
                                     PluginConfig.save()
                                 }
 
                                 "searchTooFastTips" -> {
                                     val value = message.contentToString().replace(".nsp set searchTooFastTips", "")
                                     PluginConfig.searchTooFastTips = value
-                                    group.sendMessage("[NSP] 查询过快提示设置为 $value 成功")
+                                    group.sendMessage("[NSP] 查询过快提示已设置为 $value")
                                     PluginConfig.save()
                                 }
 
                                 "searchTips" -> {
                                     val value = message.contentToString().replace(".nsp set searchTips ", "")
                                     PluginConfig.searchTips = value
-                                    group.sendMessage("[NSP] 回复小尾巴设置为 $value 成功")
+                                    group.sendMessage("[NSP] 回复小尾巴已设置为 $value")
                                     PluginConfig.save()
                                 }
+                                
+                                else -> group.sendMessage("[NSP] 设置选项错误，请检查输入")
                             }
                         } catch (e: IndexOutOfBoundsException) {
                             group.sendMessage("[NSP] 设置选项错误，请检查输入")
@@ -119,7 +121,7 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
 
                     "add" -> {
                         if (sender.id != PluginConfig.masterQQ) {
-                            group.sendMessage("[NSP] 你不是我的主人，无权修改！")
+                            group.sendMessage("[NSP] 只有主人才能修改配置！")
                             return@subscribeAlways
                         }
 
@@ -150,7 +152,7 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
 
                     "remove" -> {
                         if (sender.id != PluginConfig.masterQQ) {
-                            group.sendMessage("[NSP] 你不是我的主人，无权修改！")
+                            group.sendMessage("[NSP] 只有主人才能修改配置！")
                             return@subscribeAlways
                         }
 
