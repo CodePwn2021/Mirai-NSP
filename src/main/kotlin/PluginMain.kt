@@ -5,15 +5,15 @@ import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.globalEventChannel
-import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.utils.error
 import net.mamoe.mirai.utils.info
 import org.json.JSONObject
+import java.io.FileNotFoundException
 
 object PluginMain : KotlinPlugin(JvmPluginDescription(
     id = "com.codepwn.nsp",
     name = "NeteaseSearchPlayer",
-    version = "1.1.1",
+    version = "1.1.2",
 ) {
     author("CodePwn")
     info("""这个插件可以按呢称查询我的世界中国版的玩家信息""")
@@ -47,8 +47,9 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
                     "name" -> {
 
                         val timeout = Utils.checkTimeout(group.id)
-                        if(sender.id != PluginConfig.masterQQ && timeout.split("_")[1] != "yes") {
-                            group.sendMessage("[NSP] "+PluginConfig.searchTooFastTips.replace("%NSP_sec%",timeout.split("_")[0]))
+                        if (sender.id != PluginConfig.masterQQ && timeout.split("_")[1] != "yes") {
+                            group.sendMessage("[NSP] " + PluginConfig.searchTooFastTips.replace("%NSP_sec%",
+                                timeout.split("_")[0]))
                             return@subscribeAlways
                         }
 
@@ -65,10 +66,14 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
                             val playerRegister = entitys.getInt("register_time").toString()
                             val playerLogin = entitys.getInt("login_time").toString()
                             val playerLogout = entitys.getInt("logout_time").toString()
-
-                            group.sendMessage(group.uploadImage(Utils.urlRes2InputStream(playerAvatar)) + PlainText("玩家 $playerName 的信息：\n玩家UID：$playerUid\n玩家注册时间：\n" + Utils.ts2d(
+                            val needSendResult = "玩家 $playerName 的信息：\n玩家UID：$playerUid\n玩家注册时间：\n" + Utils.ts2d(
                                 playerRegister) + "\n玩家上一次登录时间：\n" + Utils.ts2d(playerLogin) + "\n玩家上一次登出时间：\n" + Utils.ts2d(
-                                playerLogout) + "\n玩家头像链接：\n" + playerAvatar.toString() + "\n玩家签名内容：\n" + playerSignature.toString() + "\n\n" + PluginConfig.searchTips))
+                                playerLogout) + "\n玩家头像链接：\n" + playerAvatar.toString() + "\n玩家签名内容：\n" + playerSignature.toString() + "\n\n" + PluginConfig.searchTips
+                            try {
+                                group.sendMessage(group.uploadImage(Utils.urlRes2InputStream(playerAvatar)) + needSendResult)
+                            } catch (e: FileNotFoundException) {
+                                group.sendMessage("[该玩家头像无法加载，可能是头像被删除]\n$needSendResult")
+                            }
                         } else {
                             group.sendMessage(searchResult)
                         }
@@ -94,12 +99,12 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
                                 "searchTimeoutSec" -> {
                                     val value = message.contentToString().replace(".nsp set ", "").split(" ")[1].toInt()
                                     PluginConfig.searchTimeoutSec = value
-                                    group.sendMessage("[NSP] 查询延时已设置为 $value")
+                                    group.sendMessage("[NSP] 查询延时已设置为 $value 秒")
                                     PluginConfig.save()
                                 }
 
                                 "searchTooFastTips" -> {
-                                    val value = message.contentToString().replace(".nsp set searchTooFastTips", "")
+                                    val value = message.contentToString().replace(".nsp set searchTooFastTips ", "")
                                     PluginConfig.searchTooFastTips = value
                                     group.sendMessage("[NSP] 查询过快提示已设置为 $value")
                                     PluginConfig.save()
@@ -111,7 +116,7 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
                                     group.sendMessage("[NSP] 回复小尾巴已设置为 $value")
                                     PluginConfig.save()
                                 }
-                                
+
                                 else -> group.sendMessage("[NSP] 设置选项错误，请检查输入")
                             }
                         } catch (e: IndexOutOfBoundsException) {
