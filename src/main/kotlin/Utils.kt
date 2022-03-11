@@ -43,9 +43,7 @@ object Utils {
             """.trimIndent()
         }
     }
-
-
-    @JvmStatic
+    
     private suspend fun requestServer(serverName: String, nickName: String): String {
         if (getServerAddress(serverName) == "NOTFOUND") return "[NSP] 输入的服务器不正确，一般为obt"
         val neteaseUrl = "https://" + getServerAddress(serverName) + "/user/query/search-by-name"

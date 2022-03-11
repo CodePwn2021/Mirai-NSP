@@ -8,12 +8,11 @@ import net.mamoe.mirai.event.globalEventChannel
 import net.mamoe.mirai.utils.error
 import net.mamoe.mirai.utils.info
 import org.json.JSONObject
-import java.io.FileNotFoundException
 
 object PluginMain : KotlinPlugin(JvmPluginDescription(
     id = "com.codepwn.nsp",
     name = "NeteaseSearchPlayer",
-    version = "1.1.2",
+    version = "1.1.3",
 ) {
     author("CodePwn")
     info("""这个插件可以按呢称查询我的世界中国版的玩家信息""")
@@ -23,8 +22,6 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
         val pluginTag = "[NSP] "
         PluginConfig.reload()
         PluginData.reload()
-        PluginData.GroupSearchTimeout.plus(114514L to 1919810L)
-        PluginData.save()
         logger.info { pluginTag + "欢迎使用本插件！" }
         if (PluginConfig.masterQQ == 0L) {
             logger.error { pluginTag + "未设置主人QQ，请关闭MiraiConsole后打开配置目录的NSP_Config.yml，修改群组白名单的群号，随后重启MiraiConsole。" }
@@ -70,8 +67,10 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
                                 playerRegister) + "\n玩家上一次登录时间：\n" + Utils.ts2d(playerLogin) + "\n玩家上一次登出时间：\n" + Utils.ts2d(
                                 playerLogout) + "\n玩家头像链接：\n" + playerAvatar.toString() + "\n玩家签名内容：\n" + playerSignature.toString() + "\n\n" + PluginConfig.searchTips
                             try {
-                                group.sendMessage(group.uploadImage(Utils.urlRes2InputStream(playerAvatar)) + needSendResult)
-                            } catch (e: FileNotFoundException) {
+                                val avatarImage = Utils.urlRes2InputStream(playerAvatar)
+                                group.sendMessage(group.uploadImage(avatarImage) + needSendResult)
+                                avatarImage.close()
+                            } catch (e: Exception) {
                                 group.sendMessage("[该玩家头像无法加载，可能是头像被删除]\n$needSendResult")
                             }
                         } else {
