@@ -1,5 +1,7 @@
 package com.codepwn.nsp
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
@@ -12,7 +14,7 @@ import org.json.JSONObject
 object PluginMain : KotlinPlugin(JvmPluginDescription(
     id = "com.codepwn.nsp",
     name = "NeteaseSearchPlayer",
-    version = "1.1.3",
+    version = "1.1.4",
 ) {
     author("CodePwn")
     info("""这个插件可以按呢称查询我的世界中国版的玩家信息""")
@@ -69,7 +71,9 @@ object PluginMain : KotlinPlugin(JvmPluginDescription(
                             try {
                                 val avatarImage = Utils.urlRes2InputStream(playerAvatar)
                                 group.sendMessage(group.uploadImage(avatarImage) + needSendResult)
-                                avatarImage.close()
+                                withContext(Dispatchers.IO) {
+                                    avatarImage.close()
+                                }
                             } catch (e: Exception) {
                                 group.sendMessage("[该玩家头像无法加载，可能是头像被删除]\n$needSendResult")
                             }
