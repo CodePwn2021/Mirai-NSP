@@ -1,8 +1,20 @@
 # Mirai-NSP
 
+
 一个用于查询《我的世界》中国版玩家信息的Mirai-Console插件。  
 全名是 `Mirai-NeteaseSearchPlayer`
 
+
+## 注意事项
+
+
+网易已经禁止获取玩家的注册、上一次登录、上一次登出时间，时间戳全部变成0，接口差不多废了。
+
+
+我非常气愤，但是奈何说不出什么来。
+
+
+目前已经是请求网易官方直接添加接口供我们调用、获取信息，希望以后真的有这么一天。
 ## 用法
 
 从 [Release](https://github.com/CodePwn2021/Mirai-NSP/releases) 下载插件，将插件放入plugins文件夹，打开MiraiConsole，让插件初始化配置，随后关闭MiraiConsole。  
